@@ -1,31 +1,38 @@
 import TicketTypeRequest from './lib/TicketTypeRequest.js';
 import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
 
-const TICKET_PRICES = {//would usually move this into its own file
-  ADULT: 20.00,
-  CHILD: 10.00,
-  INFANT: 5.00
-};
+const CONFIG = {
+  MAX_TICKETS : 20,
+  SEAT_ALLOCATION : {
+    ADULT: 1,
+    CHILD: 1,
+    INFANT: 0
+  },
+  TICKET_PRICES : {//would usually move this into its own file
+    ADULT: 20.00,
+    CHILD: 10.00,
+    INFANT: 5.00
+  }
+}
 
-const MAX_TICKETS = 20
 export default class TicketService {
 
   #getTicketTypesSummary = (ticketTypeRequests) => {
     let types = {}
     let seatsTotal = 0
+    const { SEAT_ALLOCATION } = CONFIG
 
     //return ticketTypeRequests.reduce((summary, ticket) =>{
     ticketTypeRequests.forEach((ticket) => {
-      ticket = ticket.toLowerCase()
+      seatsTotal += SEAT_ALLOCATION[ticket]
 
+      ticket = ticket.toLowerCase()
       if (types[ticket]) {
         types[ticket]++
       } else {
         types[ticket] = 1
       }
-      if (ticket != 'infant') {
-        seatsTotal++
-      }
+
       return types
     })
 
@@ -47,7 +54,7 @@ export default class TicketService {
       errors.push(new Error("Each infant required to sit on adults lap, but number of infants exceeds number of adults"))
     }
 
-    if (seatsTotal > MAX_TICKETS ) {
+    if (seatsTotal > CONFIG.MAX_TICKETS ) {
       errors.push(new Error("Max number of tickets exceeded"))
     }
 
@@ -79,7 +86,7 @@ export default class TicketService {
     try {
       this.#validateRequests(ticketTypeRequestsSummary)
       const { seatsTotal } = ticketTypeRequestsSummary
-      const cost = this.#calculateCost(ticketTypeRequestsSummary.types, TICKET_PRICES)
+      const cost = this.#calculateCost(ticketTypeRequestsSummary.types, CONFIG.TICKET_PRICES)
 
     } catch (errors) {
       throw new InvalidPurchaseException(errors)

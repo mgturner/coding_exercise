@@ -1,9 +1,5 @@
-import TicketTypeRequest from './lib/TicketTypeRequest.js';
 import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
 import config from '../config.js'
-import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
-import SeatReservationService from '../thirdparty/seatbooking/SeatReservationService.js';
-
 export default class TicketService {
 
   constructor(ticketPaymentService, seatReservationService) {
@@ -72,7 +68,7 @@ export default class TicketService {
    /**
    * Should only have private methods other than the one below.
    */
-  purchaseTickets(accountId, ...ticketTypeRequests) {
+  async purchaseTickets(accountId, ...ticketTypeRequests) {
 
     const ticketTypeRequestsSummary = this.#getTicketTypesSummary(ticketTypeRequests)
 
@@ -81,19 +77,13 @@ export default class TicketService {
       const { seatsTotal } = ticketTypeRequestsSummary
       const cost = this.#calculateCost(ticketTypeRequestsSummary.types, config.TICKET_PRICES)
 
+      //spec says no changes to makePayment and reserveSeat, assume all working so wont await a response
       this.ticketPaymentService.makePayment(accountId, cost)
       this.seatReservationService.reserveSeat(accountId, seatsTotal)
-      debugger
+
+      return true
     } catch (errors) {
       throw new InvalidPurchaseException(errors)
     }
-
-     /*
-     Have used a try/catch above as typically dont want to assume the error should halt the program. In this case the...
-
-    // throws InvalidPurchaseException
-
-    that is already present in the code implies it should throw an error that is uncaught.  I assume the TicketService will be initialised using a try/catch, so any errors, are caught by this when they bubble up to ensure it doesnt stop the code running.
-    */
   }
 }

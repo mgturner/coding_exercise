@@ -9,7 +9,7 @@ export default class TicketTypeRequest {
 
   #noOfTickets;
 
-  #Type = config.TYPES//['ADULT', 'CHILD', 'INFANT'];//to config file
+  #Type = config.TYPES
 
   constructor(type, noOfTickets) {
     const { MAX_TICKETS } = config
@@ -45,6 +45,4 @@ export default class TicketTypeRequest {
   getTicketType() {
     return this.#type;
   }
-
-
 }

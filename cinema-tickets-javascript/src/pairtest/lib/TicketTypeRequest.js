@@ -1,3 +1,5 @@
+import config from '../../config.js'
+
 /**
  * Immutable Object.
  */
@@ -7,13 +9,29 @@ export default class TicketTypeRequest {
 
   #noOfTickets;
 
+  #Type = config.TYPES//['ADULT', 'CHILD', 'INFANT'];//to config file
+
   constructor(type, noOfTickets) {
+    const { MAX_TICKETS } = config
+
     if (!this.#Type.includes(type)) {
       throw new TypeError(`type must be ${this.#Type.slice(0, -1).join(', ')}, or ${this.#Type.slice(-1)}`);
     }
 
     if (!Number.isInteger(noOfTickets)) {
       throw new TypeError('noOfTickets must be an integer');
+    }
+
+    if (noOfTickets === 0) {
+      throw new TypeError('zero tickets requested')
+    }
+
+    if (noOfTickets < 0) {
+      throw new TypeError('negative number of tickets requested')
+    }
+
+    if (noOfTickets > MAX_TICKETS) {
+      throw new TypeError(`${noOfTickets} requested greater than max allowed (${MAX_TICKETS})`)
     }
 
     this.#type = type;
@@ -28,5 +46,5 @@ export default class TicketTypeRequest {
     return this.#type;
   }
 
-  #Type = ['ADULT', 'CHILD', 'INFANT'];
+
 }

@@ -1,39 +1,27 @@
 import TicketTypeRequest from './lib/TicketTypeRequest.js';
 import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
-
-const CONFIG = {
-  MAX_TICKETS : 20,
-  SEAT_ALLOCATION : {
-    ADULT: 1,
-    CHILD: 1,
-    INFANT: 0
-  },
-  TICKET_PRICES : {//would usually move this into its own file
-    ADULT: 20.00,
-    CHILD: 10.00,
-    INFANT: 5.00
-  }
-}
+import config from '../config.js'
+import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
+import SeatReservationService from '../thirdparty/seatbooking/SeatReservationService.js';
 
 export default class TicketService {
 
   #getTicketTypesSummary = (ticketTypeRequests) => {
     let types = {}
     let seatsTotal = 0
-    const { SEAT_ALLOCATION } = CONFIG
+    const { SEAT_ALLOCATION } = config
 
     //return ticketTypeRequests.reduce((summary, ticket) =>{
-    ticketTypeRequests.forEach((ticket) => {
-      seatsTotal += SEAT_ALLOCATION[ticket]
+    ticketTypeRequests.forEach((ticketRequest) => {
+      const ticketType = ticketRequest.getTicketType().toLowerCase();
+      const noOfTickets = ticketRequest.getNoOfTickets();
+      seatsTotal += SEAT_ALLOCATION[ticketType.toUpperCase()] * noOfTickets;
 
-      ticket = ticket.toLowerCase()
-      if (types[ticket]) {
-        types[ticket]++
+      if (types[ticketType]) {
+        types[ticketType]+= noOfTickets
       } else {
-        types[ticket] = 1
+        types[ticketType] = noOfTickets
       }
-
-      return types
     })
 
     return {
@@ -54,7 +42,7 @@ export default class TicketService {
       errors.push(new Error("Each infant required to sit on adults lap, but number of infants exceeds number of adults"))
     }
 
-    if (seatsTotal > CONFIG.MAX_TICKETS ) {
+    if (seatsTotal > config.MAX_TICKETS ) {
       errors.push(new Error("Max number of tickets exceeded"))
     }
 
@@ -86,7 +74,16 @@ export default class TicketService {
     try {
       this.#validateRequests(ticketTypeRequestsSummary)
       const { seatsTotal } = ticketTypeRequestsSummary
-      const cost = this.#calculateCost(ticketTypeRequestsSummary.types, CONFIG.TICKET_PRICES)
+
+
+      const cost = this.#calculateCost(ticketTypeRequestsSummary.types, config.TICKET_PRICES)
+      debugger
+
+      const ticketPaymentService = new TicketPaymentService
+      ticketPaymentService.makePayment(accountId, cost)
+
+      const seatReservationService = new SeatReservationService
+      seatReservationService.reserveSeat(accountId, seatsTotal)
 
     } catch (errors) {
       throw new InvalidPurchaseException(errors)
@@ -104,5 +101,10 @@ export default class TicketService {
 
 const ticketService = new TicketService
 
-ticketService.purchaseTickets(1, 'INFANT','INFANT','ADULT','ADULT','ADULT', 'CHILD')
+const adultTicketRequest = new TicketTypeRequest('ADULT', 24);
+const infantTicketRequest = new TicketTypeRequest('INFANT', 2);
+const childTicketRequest = new TicketTypeRequest('CHILD', 2);
+
+ticketService.purchaseTickets(1, adultTicketRequest, infantTicketRequest, childTicketRequest);
+//ticketService.purchaseTickets(1, 'INFANT','INFANT','ADULT','ADULT','ADULT', 'CHILD')
 //ticketService.purchaseTickets(1, 'INFANT','INFANT', 'CHILD')

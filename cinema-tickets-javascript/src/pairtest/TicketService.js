@@ -6,6 +6,11 @@ import SeatReservationService from '../thirdparty/seatbooking/SeatReservationSer
 
 export default class TicketService {
 
+  constructor(ticketPaymentService, seatReservationService) {
+    this.ticketPaymentService = ticketPaymentService
+    this.seatReservationService = seatReservationService
+  }
+
   #getTicketTypesSummary = (ticketTypeRequests) => {
     let types = {}
     let seatsTotal = 0
@@ -74,19 +79,11 @@ export default class TicketService {
     try {
       this.#validateRequests(ticketTypeRequestsSummary)
       const { seatsTotal } = ticketTypeRequestsSummary
-
-
       const cost = this.#calculateCost(ticketTypeRequestsSummary.types, config.TICKET_PRICES)
 
-      const ticketPaymentService = new TicketPaymentService
-      ticketPaymentService.makePayment(accountId, cost)
-
-      const seatReservationService = new SeatReservationService
-      seatReservationService.reserveSeat(accountId, seatsTotal)
+      this.ticketPaymentService.makePayment(accountId, cost)
+      this.seatReservationService.reserveSeat(accountId, seatsTotal)
       debugger
-
-
-
     } catch (errors) {
       throw new InvalidPurchaseException(errors)
     }

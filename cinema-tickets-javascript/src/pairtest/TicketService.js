@@ -77,13 +77,15 @@ export default class TicketService {
 
 
       const cost = this.#calculateCost(ticketTypeRequestsSummary.types, config.TICKET_PRICES)
-      debugger
 
       const ticketPaymentService = new TicketPaymentService
       ticketPaymentService.makePayment(accountId, cost)
 
       const seatReservationService = new SeatReservationService
       seatReservationService.reserveSeat(accountId, seatsTotal)
+      debugger
+
+
 
     } catch (errors) {
       throw new InvalidPurchaseException(errors)
@@ -98,13 +100,3 @@ export default class TicketService {
     */
   }
 }
-
-const ticketService = new TicketService
-
-const adultTicketRequest = new TicketTypeRequest('ADULT', 24);
-const infantTicketRequest = new TicketTypeRequest('INFANT', 2);
-const childTicketRequest = new TicketTypeRequest('CHILD', 2);
-
-ticketService.purchaseTickets(1, adultTicketRequest, infantTicketRequest, childTicketRequest);
-//ticketService.purchaseTickets(1, 'INFANT','INFANT','ADULT','ADULT','ADULT', 'CHILD')
-//ticketService.purchaseTickets(1, 'INFANT','INFANT', 'CHILD')

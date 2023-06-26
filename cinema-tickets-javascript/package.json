@@ -7,10 +7,8 @@
   },
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "demo": "node src/pairtest/ticketServiceDemo.js"
   },
   "devDependencies": {
-    "jest": "28.1.1",
-    "mocha": "10.0.0"
   }
 }

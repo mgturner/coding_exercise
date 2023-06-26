@@ -35,10 +35,6 @@ export default class TicketService {
     const { seatsTotal } = ticketTypeRequestsSummary
     const errors = []
 
-    if (!adult) {
-      errors.push(new Error("At least one adult ticket is required but none have been requested"))
-    }
-
     if (infant > (adult || 0))  {
       errors.push(new Error("Each infant required to sit on adults lap, but number of infants exceeds number of adults"))
     }

@@ -14,5 +14,5 @@ const demo = (async () => {
   const childTicketRequest = new TicketTypeRequest('CHILD', 2);
 
   await ticketService.purchaseTickets(1, adultTicketRequest, infantTicketRequest, childTicketRequest);
-  debugger
+  console.log('Tickets reserved')
 })()

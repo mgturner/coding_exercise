@@ -64,7 +64,7 @@ export default class TicketService {
    /**
    * Should only have private methods other than the one below.
    */
-  async purchaseTickets(accountId, ...ticketTypeRequests) {
+  async purchaseTickets(accountId, ...ticketTypeRequests) {//async isn't needed, when makePayment and reserveSeat are in real world it likely will
 
     const ticketTypeRequestsSummary = this.#getTicketTypesSummary(ticketTypeRequests)
 

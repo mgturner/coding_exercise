@@ -13,6 +13,7 @@ const demo = (async () => {
   const infantTicketRequest = new TicketTypeRequest('INFANT', 2);
   const childTicketRequest = new TicketTypeRequest('CHILD', 2);
 
+  //the 'await' below, and also setting this up as a async function is totally unnecessary, just in real world it would likely require this
   await ticketService.purchaseTickets(1, adultTicketRequest, infantTicketRequest, childTicketRequest);
   console.log('Tickets reserved')
 })()
